@@ -1,9 +1,11 @@
 // DECLARATIVE
 pipeline {
-    agent any
+//    agent any
+    agent { docker { image "maven:3.6.3" } }
     stages {
         stage('Build') {
             steps {
+                sh 'mvn --version'
                 echo "Build"
             }
         }
@@ -23,7 +25,7 @@ pipeline {
             echo "I run always"
         }
         success {
-            echo "I run when the jobs is a success"
+            echo "I run when the job is a success"
         }
         failure {
             echo "I run when the job fails"
