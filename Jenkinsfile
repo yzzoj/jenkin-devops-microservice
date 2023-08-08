@@ -24,6 +24,7 @@ pipeline {
                 echo "BUILD_URL - ${env.BUILD_URL}"
             }
         }
+
         stage('Compile') {
             steps {
                 sh "mvn clean compile"
@@ -37,6 +38,27 @@ pipeline {
         stage('Integration Test') {
             steps {
                 sh "mvn failsafe:integration-test failsafe:verify"
+            }
+        }
+        stage('Package') {
+            steps {
+                sh "mvn package -DskipTests"
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                // "docker build -t yzzoj/currency-exchange-devops:${env.BUILD_TAG}"
+                dockerImage = docker.build("yzzoj/currency-exchange-devops:${env.BUILD_TAG}")
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                docker.withRegistry('','dockerhub') {
+                    // $1 is default dockerhub, $2 is label defined in jenkins for docker credentials
+                    dockerImage.push();
+                    dockerImage-push('latest');
+                }
             }
         }
     } 
